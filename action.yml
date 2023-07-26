@@ -1,0 +1,11 @@
+name: 'markdown-translation action'
+description: 'extracts xliff and skeleton from markdown and compose markdown from them'
+author: 'moki'
+inputs:
+  name: # change this
+    required: true
+    description: 'who to greet'
+    default: 'moki'
+runs:
+  using: 'node16'
+  main: 'dist/index.js'
