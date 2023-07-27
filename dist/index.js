@@ -42,6 +42,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Action = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
+const constants_1 = __nccwpck_require__(5105);
 class Action {
     constructor() {
         this.parameters = this.parseActionParameters();
@@ -50,33 +51,110 @@ class Action {
     }
     parseActionParameters() {
         const githubToken = core.getInput('github-token', { required: true });
-        const name = core.getInput('name', { required: true });
-        return { githubToken, name };
+        return { githubToken };
     }
     run() {
         return __awaiter(this, void 0, void 0, function* () {
-            const { name } = this.parameters;
-            core.debug(`Hello, ${name}`);
             const { eventName } = this.context;
             core.debug(`triggered ${eventName}`);
             if (eventName === Action.pull_request_event) {
-                core.debug('handling pull_request');
-                return;
+                return this.handlePullRequest();
             }
             else if (eventName === Action.issue_comment_event) {
                 core.debug('handling issue_comment');
                 return;
             }
-            throw new Error(`${eventName} not implemented\n${Action.usage}`);
+            throw new Error(`${eventName} not implemented\n${Action.configuration}`);
+        });
+    }
+    handlePullRequest() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { repo, payload: { pull_request }, } = this.context;
+            if (!(repo && pull_request)) {
+                return;
+            }
+            yield this.octokit.rest.issues.createComment(Object.assign(Object.assign({}, repo), { issue_number: pull_request.number, body: Action.usage }));
         });
     }
 }
 exports.Action = Action;
 Action.pull_request_event = 'pull_request';
 Action.issue_comment_event = 'issue_comment';
-Action.usage = `action intended to be ran on triggers:
-issue_comment(types:[created, edited]), pull_request(types:[opened])`;
+Action.configuration = `action intended to be configured to run on triggers:
+issue_comment(types:[created, edited])
+pull_request(types:[opened])`;
+Action.usage = constants_1.usage;
 exports["default"] = { Action };
+
+
+/***/ }),
+
+/***/ 5105:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.usage = void 0;
+const usage = `\
+#### markdown-translation
+
+command starts with mandatory prefix: \`markdown-translation\`,
+then follows command name and parameters to that command.
+
+you are allowed to have other text inside comment and still launch commands,
+but commands should star with the new line.
+
+tokens inside command string should be separated by spaces.
+
+##### requirements
+
+- command to start from the new line
+- have \`markdown-translation\` prefix
+- separate tokens inside command string with spaces
+- comment author should have appropriate repository permissions
+- comment author should have one of the associations that were specified in the CI configuration
+
+##### commands
+
+- extract
+- compose
+
+##### extract
+
+command extracts xliff and skeleton from markdown files at **input_folder** path
+and stores them at the **output_folder** path.
+
+##### parameters
+
+paths are relative to the repository root
+
+- input_folder(**required**): path with markdown files
+- output_folder(**required**): path to store extracted xliff and skeleton files
+- sll(optional): source language locale (default: ru-RU)
+- rll(optional): target language locale (default: en-US)
+
+##### example
+
+\`markdown-translation extract documentation documentation-xliff\`
+
+##### compose
+
+command composes xliff and skeleton files from **input_folder** into markdown files
+and stores them at the **output_folder** path.
+
+##### parameters
+
+paths are relative to the repository root
+
+- input_folder(**required**): path with extracted xliff and skeleton files
+- output_folder(**required**): path to store composed markdown
+
+##### example
+
+\`markdown-translation extract documentation-xliff documentation-translated\``;
+exports.usage = usage;
+exports["default"] = { usage };
 
 
 /***/ }),
