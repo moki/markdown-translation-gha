@@ -20,5 +20,4 @@ jobs:
       - uses: actions/checkout@v3
       - uses: ./
         with:
-          name: Noam
           github-token: ${{secrets.GITHUB_TOKEN}}
