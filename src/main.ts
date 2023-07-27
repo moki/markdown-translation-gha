@@ -1,14 +1,12 @@
 import * as core from '@actions/core';
+import {Action} from './action';
 
-async function run(): Promise<void> {
-    try {
-        const name = core.getInput('name');
-        core.debug(`Hello, ${name}!`);
-    } catch (error) {
-        if (error instanceof Error) {
-            core.setFailed(error.message);
-        }
+try {
+    const action = new Action();
+    action.run();
+} catch (err) {
+    if (err instanceof Error) {
+        core.error(`action failure(${err.name}): ${err.message}`);
+        core.setFailed(err.message);
     }
 }
-
-run();

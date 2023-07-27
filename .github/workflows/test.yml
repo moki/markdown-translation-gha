@@ -21,3 +21,4 @@ jobs:
       - uses: ./
         with:
           name: Noam
+          github-token: ${{secrets.GITHUB_TOKEN}}
