@@ -15,10 +15,14 @@ jobs:
       - run: |
           npm run all
   test: # make sure the action works on a clean machine without building
+    permissions:
+      pull-requests: write
+      contents: write
+      packages: write
+      issues: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: ./
         with:
-          name: Noam
           github-token: ${{secrets.GITHUB_TOKEN}}
