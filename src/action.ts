@@ -27,9 +27,11 @@ pull_request(types:[opened])`;
     private static issue_comment_event = 'issue_comment';
 
     private static allowedPermissions = new Set(['admin', 'write']);
+    private static defaultAssociationsString = '["OWNER"]';
 
     constructor() {
         this.parameters = this.parseActionParameters();
+
         this.octokit = github.getOctokit(this.parameters.githubToken);
         this.context = github.context;
         this.allowedAssociations = new Set(this.parameters.associations);
@@ -38,13 +40,18 @@ pull_request(types:[opened])`;
     private parseActionParameters(): ActionParameters {
         const githubToken = core.getInput('github-token', {required: true});
 
-        let assocRaw = core.getInput('allowed-associations');
-        if (!assocRaw?.length) {
-            // default association is owner of the repository
-            assocRaw = '["OWNER"]';
+        let associationsString = core.getInput('allowed-associations');
+        if (!associationsString?.length) {
+            associationsString = Action.defaultAssociationsString;
         }
 
-        const parser = z.string().transform((str, ctx): string[] => {
+        const associations = this.parseAssociations(associationsString);
+
+        return {githubToken, associations};
+    }
+
+    private parseAssociations(associations: string): string[] {
+        const parser = (str: string, ctx: z.RefinementCtx): string[] => {
             try {
                 const parsed = JSON.parse(str);
 
@@ -54,15 +61,12 @@ pull_request(types:[opened])`;
                     code: z.ZodIssueCode.custom,
                     message: 'parsed value is not array of strings',
                 });
+
                 return z.NEVER;
             }
-        });
+        };
 
-        const associations = parser.parse(assocRaw);
-
-        core.debug(`parsed associations: ${associations}`);
-
-        return {githubToken, associations};
+        return z.string().transform(parser).parse(associations);
     }
 
     async run(): Promise<void> {
@@ -100,6 +104,7 @@ pull_request(types:[opened])`;
 
     async handleComment(): Promise<void> {
         core.debug('handling issue_comment');
+
         this.assertPermissions();
     }
 
@@ -109,14 +114,10 @@ pull_request(types:[opened])`;
             throw new Error('insufficient actor permissions');
         }
 
-        core.debug(`actor: ${this.context.actor}, permission: ${permission}`);
-
         const association = await this.commentAuthorAssociation();
         if (!this.allowedAssociations.has(association)) {
             throw new Error('insufficient actor association');
         }
-
-        core.debug(`actor: ${this.context.actor}, association: ${association}`);
     }
 
     async actorPermission(): Promise<string> {

@@ -53,12 +53,15 @@ class Action {
     }
     parseActionParameters() {
         const githubToken = core.getInput('github-token', { required: true });
-        let assocRaw = core.getInput('allowed-associations');
-        if (!(assocRaw === null || assocRaw === void 0 ? void 0 : assocRaw.length)) {
-            // default association is owner of the repository
-            assocRaw = '["OWNER"]';
+        let associationsString = core.getInput('allowed-associations');
+        if (!(associationsString === null || associationsString === void 0 ? void 0 : associationsString.length)) {
+            associationsString = Action.defaultAssociationsString;
         }
-        const parser = zod_1.z.string().transform((str, ctx) => {
+        const associations = this.parseAssociations(associationsString);
+        return { githubToken, associations };
+    }
+    parseAssociations(associations) {
+        const parser = (str, ctx) => {
             try {
                 const parsed = JSON.parse(str);
                 return zod_1.z.array(zod_1.z.string()).parse(parsed);
@@ -70,10 +73,8 @@ class Action {
                 });
                 return zod_1.z.NEVER;
             }
-        });
-        const associations = parser.parse(assocRaw);
-        core.debug(`parsed associations: ${associations}`);
-        return { githubToken, associations };
+        };
+        return zod_1.z.string().transform(parser).parse(associations);
     }
     run() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -109,12 +110,10 @@ class Action {
             if (!Action.allowedPermissions.has(permission)) {
                 throw new Error('insufficient actor permissions');
             }
-            core.debug(`actor: ${this.context.actor}, permission: ${permission}`);
             const association = yield this.commentAuthorAssociation();
             if (!this.allowedAssociations.has(association)) {
                 throw new Error('insufficient actor association');
             }
-            core.debug(`actor: ${this.context.actor}, association: ${association}`);
         });
     }
     actorPermission() {
@@ -144,6 +143,7 @@ Action.usage = constants_1.usage;
 Action.pull_request_event = 'pull_request';
 Action.issue_comment_event = 'issue_comment';
 Action.allowedPermissions = new Set(['admin', 'write']);
+Action.defaultAssociationsString = '["OWNER"]';
 exports["default"] = { Action };
 
 
