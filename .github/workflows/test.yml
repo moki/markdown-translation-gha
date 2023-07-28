@@ -1,9 +1,11 @@
 name: 'build-test'
 on:
   pull_request:
-  push:
-    branches:
+    types: [opened]
+    brances:
       - main
+  issue_comment:
+    types: [created, edited]
 
 jobs:
   build: # make sure build/ci work properly
@@ -25,4 +27,5 @@ jobs:
       - uses: actions/checkout@v3
       - uses: ./
         with:
+          allowed-associations: '["OWNER", "COLLABORATOR"]'
           github-token: ${{secrets.GITHUB_TOKEN}}

@@ -2,8 +2,11 @@ name: 'markdown-translation action'
 description: 'extracts xliff and skeleton from markdown and compose markdown from them'
 author: 'moki'
 inputs:
+  allowed-associations:
+    description: Array of allowed associations for actors
+    default: '["OWNER"]'
   github-token:
-    description: 'github token'
+    description: github token
     required: true
 runs:
   using: 'node16'
