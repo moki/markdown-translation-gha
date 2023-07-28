@@ -157,35 +157,35 @@ exports["default"] = { Action };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.usage = void 0;
 const usage = `\
-#### markdown-translation
+#### 🔍 📝 🤖 markdown-translation
 
-command starts with mandatory prefix: \`markdown-translation\`,
-then follows command name and parameters to that command.
+commands start with mandatory prefix: **markdown-translation**,
+then follows command name and parameters.
 
-you are allowed to have other text inside comment and still launch commands,
-but commands should star with the new line.
+commands don't have to be the only text inside the comment,
+but they should start with the new line.
 
 tokens inside command string should be separated by spaces.
 
-##### requirements
+##### 💡 requirements
 
-- command to start from the new line
-- have \`markdown-translation\` prefix
-- separate tokens inside command string with spaces
+- commands start from the new line
+- commands have **markdown-translation** prefix
+- tokens inside command string are separated with spaces
 - comment author should have appropriate repository permissions
-- comment author should have one of the associations that were specified in the CI configuration
+- comment author should have appropriate associations
 
-##### commands
+##### 🤖 commands
 
 - extract
 - compose
 
-##### extract
+##### 🔍 extract
 
 command extracts xliff and skeleton from markdown files at **input_folder** path
 and stores them at the **output_folder** path.
 
-##### parameters
+##### 🎛️ parameters
 
 paths are relative to the repository root
 
@@ -194,25 +194,29 @@ paths are relative to the repository root
 - sll(optional): source language locale (default: ru-RU)
 - rll(optional): target language locale (default: en-US)
 
-##### example
+##### 🚀 example
 
-\`markdown-translation extract documentation documentation-xliff\`
+\`\`\`
+markdown-translation extract documentation documentation-xliff
+\`\`\`
 
-##### compose
+##### 📝 compose
 
 command composes xliff and skeleton files from **input_folder** into markdown files
 and stores them at the **output_folder** path.
 
-##### parameters
+##### 🎛️ parameters
 
 paths are relative to the repository root
 
 - input_folder(**required**): path with extracted xliff and skeleton files
 - output_folder(**required**): path to store composed markdown
 
-##### example
+##### 🚀 example
 
-\`markdown-translation extract documentation-xliff documentation-translated\``;
+\`\`\`
+markdown-translation extract documentation-xliff documentation-translated
+\`\`\``;
 exports.usage = usage;
 exports["default"] = { usage };
 
