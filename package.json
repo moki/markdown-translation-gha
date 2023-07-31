@@ -5,6 +5,7 @@
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
+    "test": "jest",
     "format": "prettier --write '**/*.ts'",
     "format-check": "prettier --check '**/*.ts'",
     "lint": "eslint src/**/*.ts",
