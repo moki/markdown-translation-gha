@@ -44,12 +44,21 @@ const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
 const zod_1 = __nccwpck_require__(3301);
 const constants_1 = __nccwpck_require__(5105);
+const command_1 = __nccwpck_require__(524);
 class Action {
     constructor() {
         this.parameters = this.parseActionParameters();
         this.octokit = github.getOctokit(this.parameters.githubToken);
         this.context = github.context;
         this.allowedAssociations = new Set(this.parameters.associations);
+        this.commandsExecutor = new command_1.CommandExecutor();
+        this.commandsExecutor.addHandler('extract', (...parameters) => __awaiter(this, void 0, void 0, function* () {
+            core.debug(`extracting parameters: ${parameters}`);
+        }));
+        this.commandsExecutor.addHandler('compose', (...parameters) => __awaiter(this, void 0, void 0, function* () {
+            core.debug(`composing parameters: ${parameters}`);
+        }));
+        this.commandsParser = new command_1.CommandParser();
     }
     parseActionParameters() {
         const githubToken = core.getInput('github-token', { required: true });
@@ -102,6 +111,14 @@ class Action {
         return __awaiter(this, void 0, void 0, function* () {
             core.debug('handling issue_comment');
             this.assertPermissions();
+            const results = yield this.commandsExecutor.execute([
+                new command_1.Command('extract', ['extract_input', 'extract_output']),
+                new command_1.Command('compose', ['compose_input', 'compose_output']),
+            ]);
+            for (const result of results) {
+                const printable = JSON.stringify(result, null, 4);
+                core.debug(printable);
+            }
         });
     }
     assertPermissions() {
@@ -145,6 +162,91 @@ Action.issue_comment_event = 'issue_comment';
 Action.allowedPermissions = new Set(['admin', 'write']);
 Action.defaultAssociationsString = '["OWNER"]';
 exports["default"] = { Action };
+
+
+/***/ }),
+
+/***/ 524:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Command = exports.CommandParser = exports.CommandExecutor = void 0;
+const zod_1 = __nccwpck_require__(3301);
+const cinameSchema = zod_1.z.literal('markdown-translation');
+const commandsSchema = zod_1.z.union([zod_1.z.literal('extract'), zod_1.z.literal('compose')]);
+const parametersSchema = zod_1.z.array(zod_1.z.string());
+class Command {
+    constructor(name, parameters) {
+        this.name = name;
+        this.parameters = parameters !== null && parameters !== void 0 ? parameters : [];
+    }
+}
+exports.Command = Command;
+class CommandParser {
+    parse(input) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const lines = input.split('\n').filter(Boolean);
+            const parsed = [];
+            for (const line of lines) {
+                try {
+                    const command = this.parseCommand(line);
+                    parsed.push(command);
+                }
+                catch (err) {
+                    continue;
+                }
+            }
+            return parsed;
+        });
+    }
+    parseCommand(line) {
+        const tokens = line.split(' ').filter(Boolean);
+        if (tokens.length < 4) {
+            throw new Error('invalid command string');
+        }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const keyword = cinameSchema.parse(tokens[0]);
+        const cmd = commandsSchema.parse(tokens[1]);
+        const parameters = parametersSchema.parse(tokens.slice(2));
+        const command = new Command(cmd, parameters);
+        return command;
+    }
+}
+exports.CommandParser = CommandParser;
+class CommandExecutor {
+    constructor() {
+        this.handlers = new Map();
+    }
+    addHandler(command, handler) {
+        this.handlers.set(command, handler);
+    }
+    execute(commands) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const outputs = [];
+            for (const command of commands) {
+                const handler = this.handlers.get(command.name);
+                if (!handler) {
+                    continue;
+                }
+                outputs.push(handler(...command.parameters));
+            }
+            return Promise.all(outputs);
+        });
+    }
+}
+exports.CommandExecutor = CommandExecutor;
+exports["default"] = { CommandExecutor, CommandParser, Command };
 
 
 /***/ }),
