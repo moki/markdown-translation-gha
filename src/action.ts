@@ -7,7 +7,7 @@ import {usage} from './constants';
 import {Context} from '@actions/github/lib/context';
 import {GitHub} from '@actions/github/lib/utils';
 
-import {Command, CommandParser, CommandExecutor} from './command';
+import {CommandParser, CommandExecutor} from './command';
 
 export type ActionParameters = {
     githubToken: string;
@@ -120,12 +120,22 @@ pull_request(types:[opened])`;
     async handleComment(): Promise<void> {
         core.debug('handling issue_comment');
 
+        const {
+            payload: {issue, comment},
+        } = this.context;
+
+        if (!(issue?.pull_request && comment)) {
+            core.debug(
+                `skip ${Action.issue_comment_event} event inside issues`
+            );
+            return;
+        }
+
         this.assertPermissions();
 
-        const results = await this.commandsExecutor.execute([
-            new Command('extract', ['extract_input', 'extract_output']),
-            new Command('compose', ['compose_input', 'compose_output']),
-        ]);
+        const commands = await this.commandsParser.parse(comment.body);
+
+        const results = await this.commandsExecutor.execute(commands);
 
         for (const result of results) {
             const printable = JSON.stringify(result, null, 4);

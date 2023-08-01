@@ -110,11 +110,14 @@ class Action {
     handleComment() {
         return __awaiter(this, void 0, void 0, function* () {
             core.debug('handling issue_comment');
+            const { payload: { issue, comment }, } = this.context;
+            if (!((issue === null || issue === void 0 ? void 0 : issue.pull_request) && comment)) {
+                core.debug(`skip ${Action.issue_comment_event} event inside issues`);
+                return;
+            }
             this.assertPermissions();
-            const results = yield this.commandsExecutor.execute([
-                new command_1.Command('extract', ['extract_input', 'extract_output']),
-                new command_1.Command('compose', ['compose_input', 'compose_output']),
-            ]);
+            const commands = yield this.commandsParser.parse(comment.body);
+            const results = yield this.commandsExecutor.execute(commands);
             for (const result of results) {
                 const printable = JSON.stringify(result, null, 4);
                 core.debug(printable);
