@@ -11,23 +11,16 @@ class Command {
     name: CommandName;
     parameters: CommandParameters;
 
-    constructor(name: CommandName, parameters: string[]) {
+    constructor(name: CommandName, parameters?: string[]) {
         this.name = name;
-        this.parameters = parameters;
+        this.parameters = parameters ?? [];
     }
 }
 
 class CommandParser {
-    input: string;
-
-    constructor(input: string) {
-        this.input = input;
-    }
-
-    async parse(): Promise<Command[]> {
+    async parse(input: string): Promise<Command[]> {
+        const lines = input.split('\n').filter(Boolean);
         const parsed = [];
-
-        const lines = this.input.split('\n').filter(Boolean);
 
         for (const line of lines) {
             try {
@@ -58,5 +51,36 @@ class CommandParser {
     }
 }
 
-export {CommandParser, Command};
-export default {CommandParser, Command};
+export type CommandHandler<T> = (
+    ...parameters: CommandParameters
+) => Promise<T>;
+
+class CommandExecutor<T> {
+    handlers: Map<CommandName, CommandHandler<T>>;
+
+    constructor() {
+        this.handlers = new Map<CommandName, CommandHandler<T>>();
+    }
+
+    addHandler(command: CommandName, handler: CommandHandler<T>): void {
+        this.handlers.set(command, handler);
+    }
+
+    async execute(commands: Command[]): Promise<unknown[]> {
+        const outputs: unknown[] = [];
+
+        for (const command of commands) {
+            const handler = this.handlers.get(command.name);
+            if (!handler) {
+                continue;
+            }
+
+            outputs.push(handler(...command.parameters));
+        }
+
+        return Promise.all(outputs);
+    }
+}
+
+export {CommandExecutor, CommandParser, Command};
+export default {CommandExecutor, CommandParser, Command};
