@@ -7,6 +7,8 @@ import {usage} from './constants';
 import {Context} from '@actions/github/lib/context';
 import {GitHub} from '@actions/github/lib/utils';
 
+import {Command, CommandParser, CommandExecutor} from './command';
+
 export type ActionParameters = {
     githubToken: string;
     associations: string[];
@@ -29,12 +31,25 @@ pull_request(types:[opened])`;
     private static allowedPermissions = new Set(['admin', 'write']);
     private static defaultAssociationsString = '["OWNER"]';
 
+    private commandsExecutor: CommandExecutor<unknown>;
+    private commandsParser: CommandParser;
+
     constructor() {
         this.parameters = this.parseActionParameters();
 
         this.octokit = github.getOctokit(this.parameters.githubToken);
         this.context = github.context;
         this.allowedAssociations = new Set(this.parameters.associations);
+
+        this.commandsExecutor = new CommandExecutor();
+        this.commandsExecutor.addHandler('extract', async (...parameters) => {
+            core.debug(`extracting parameters: ${parameters}`);
+        });
+        this.commandsExecutor.addHandler('compose', async (...parameters) => {
+            core.debug(`composing parameters: ${parameters}`);
+        });
+
+        this.commandsParser = new CommandParser();
     }
 
     private parseActionParameters(): ActionParameters {
@@ -106,6 +121,16 @@ pull_request(types:[opened])`;
         core.debug('handling issue_comment');
 
         this.assertPermissions();
+
+        const results = await this.commandsExecutor.execute([
+            new Command('extract', ['extract_input', 'extract_output']),
+            new Command('compose', ['compose_input', 'compose_output']),
+        ]);
+
+        for (const result of results) {
+            const printable = JSON.stringify(result, null, 4);
+            core.debug(printable);
+        }
     }
 
     async assertPermissions(): Promise<void> {
