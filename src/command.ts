@@ -34,7 +34,7 @@ class CommandParser {
         return parsed;
     }
 
-    parseCommand(line: string): Command {
+    private parseCommand(line: string): Command {
         const tokens = line.split(' ').filter(Boolean);
         if (tokens.length < 4) {
             throw new Error('invalid command string');
