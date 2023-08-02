@@ -50,7 +50,7 @@ pull_request(types:[opened])`;
         this.allowedAssociations = new Set(this.parameters.associations);
 
         this.gitClient = new GitClient();
-        this.githubClient = new GithubClient(this.parameters.githubToken);
+        this.githubClient = new GithubClient();
         this.xliffClient = new XLIFFClient();
 
         this.commandsExecutor = new CommandExecutor();
@@ -64,6 +64,7 @@ pull_request(types:[opened])`;
                 sll: string,
                 tll: string
             ) => {
+                core.debug(`PR NUMBER: ${pr}`);
                 await this.githubClient.checkoutPR(pr);
                 await this.xliffClient.extract(input, output, sll, tll);
                 await this.gitClient.add('.');
