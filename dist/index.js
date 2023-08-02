@@ -55,16 +55,16 @@ class Action {
         this.context = github.context;
         this.allowedAssociations = new Set(this.parameters.associations);
         this.gitClient = new git_client_1.GitClient();
-        this.githubClient = new github_client_1.GithubClient(this.parameters.githubToken);
+        this.githubClient = new github_client_1.GithubClient();
         this.xliffClient = new xliff_client_1.XLIFFClient();
         this.commandsExecutor = new command_1.CommandExecutor();
-        this.commandsExecutor.addHandler('extract', (input, output, sll, tll) => __awaiter(this, void 0, void 0, function* () {
-            yield this.xliffClient.extract(input, output, sll !== null && sll !== void 0 ? sll : '', tll !== null && tll !== void 0 ? tll : '');
+        this.commandsExecutor.addHandler('extract', (pr, input, output, sll, tll) => __awaiter(this, void 0, void 0, function* () {
+            core.debug(`PR NUMBER: ${pr}`);
+            yield this.githubClient.checkoutPR(pr);
+            yield this.xliffClient.extract(input, output, sll, tll);
             yield this.gitClient.add('.');
             yield this.gitClient.commit('markdown-translation: extract xliff and skeleton');
             yield this.gitClient.push();
-            // run: yfm xliff extract input output
-            //
         }));
         this.commandsParser = new command_1.CommandParser();
     }
@@ -124,8 +124,15 @@ class Action {
                 return;
             }
             this.assertPermissions();
+            const addPRNumberParameter = (command) => {
+                command.parameters = [
+                    issue.number.toString(),
+                    ...command.parameters,
+                ];
+                return command;
+            };
             const commands = yield this.commandsParser.parse(comment.body);
-            const results = yield this.commandsExecutor.execute(commands);
+            const results = yield this.commandsExecutor.execute(commands.map(addPRNumberParameter));
             for (const result of results) {
                 const printable = JSON.stringify(result, null, 4);
                 core.debug(printable);
@@ -411,7 +418,7 @@ class GitClient {
             if (!this.configured) {
                 yield this.configure();
             }
-            yield exec.exec(`git commit -m ${message}`);
+            yield exec.exec(`git commit -m "${message}"`);
         });
     }
     push(remote, src) {
@@ -479,13 +486,6 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.GithubClient = void 0;
 const exec = __importStar(__nccwpck_require__(1514));
 class GithubClient {
-    constructor(token) {
-        this.token = token;
-        this.configure();
-    }
-    configure() {
-        process.env['GITHUB_TOKEN'] = this.token;
-    }
     checkoutPR(number) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!(number === null || number === void 0 ? void 0 : number.length)) {
