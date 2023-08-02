@@ -72,7 +72,7 @@ class GitClient {
         this.resetStreams();
 
         try {
-            await exec.exec(`git commit -m "${message}"`);
+            await exec.exec(`git commit -m "${message}"`, [], this.options);
         } catch (err: unknown) {
             if (this.isEmptyCommit()) {
                 core.debug('no changes since last commit');

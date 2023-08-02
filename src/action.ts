@@ -64,7 +64,6 @@ pull_request(types:[opened])`;
                 sll: string,
                 tll: string
             ) => {
-                core.debug(`PR NUMBER: ${pr}`);
                 await this.githubClient.checkoutPR(pr);
                 await this.xliffClient.extract(input, output, sll, tll);
                 await this.gitClient.add('.');

@@ -58,10 +58,14 @@ class Action {
         this.githubClient = new github_client_1.GithubClient();
         this.xliffClient = new xliff_client_1.XLIFFClient();
         this.commandsExecutor = new command_1.CommandExecutor();
-        this.commandsExecutor.addHandler('extract', (pr, input, output, sll, tll) => __awaiter(this, void 0, void 0, function* () {
-            core.debug(`PR NUMBER: ${pr}`);
+        this.commandsExecutor.addHandler('extract', (pr
+        // input: string,
+        // output: string,
+        // sll: string,
+        // tll: string
+        ) => __awaiter(this, void 0, void 0, function* () {
             yield this.githubClient.checkoutPR(pr);
-            yield this.xliffClient.extract(input, output, sll, tll);
+            // await this.xliffClient.extract(input, output, sll, tll);
             yield this.gitClient.add('.');
             yield this.gitClient.commit('markdown-translation: extract xliff and skeleton');
             yield this.gitClient.push();
@@ -383,11 +387,37 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.GitClient = void 0;
 const exec = __importStar(__nccwpck_require__(1514));
+const core = __importStar(__nccwpck_require__(2186));
 class GitClient {
     constructor(username, email) {
         this.username = username !== null && username !== void 0 ? username : 'moki';
         this.email = email !== null && email !== void 0 ? email : 'morozov.kirill.moki@gmail.com';
         this.configured = false;
+        this.stderr = '';
+        this.stdout = '';
+        this.options = {
+            listeners: {
+                stderr: this.handleErr.bind(this),
+                stdout: this.handleOut.bind(this),
+                /*
+                stderr: (data: Buffer): void => {
+                    this.stderr += data.toString();
+                },
+                stdout: (data: Buffer): void => {
+                    this.stdout += data.toString();
+                },
+                */
+            },
+        };
+    }
+    handleErr(data) {
+        this.stderr += data.toString();
+    }
+    handleOut(data) {
+        this.stdout += data.toString();
+    }
+    resetStreams() {
+        this.stderr = this.stdout = '';
     }
     configure() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -407,6 +437,7 @@ class GitClient {
             if (!this.configured) {
                 yield this.configure();
             }
+            this.resetStreams();
             yield exec.exec(`git add ${pattern}`);
         });
     }
@@ -418,14 +449,30 @@ class GitClient {
             if (!this.configured) {
                 yield this.configure();
             }
-            yield exec.exec(`git commit -m "${message}"`);
+            this.resetStreams();
+            try {
+                yield exec.exec(`git commit -m "${message}"`, [], this.options);
+            }
+            catch (err) {
+                if (this.isEmptyCommit()) {
+                    core.debug('no changes since last commit');
+                }
+                else {
+                    throw err;
+                }
+            }
         });
+    }
+    isEmptyCommit() {
+        const emptyErr = 'nothing to commit, working tree clean';
+        return this.stdout.includes(emptyErr) || this.stderr.includes(emptyErr);
     }
     push(remote, src) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.configured) {
                 yield this.configure();
             }
+            this.resetStreams();
             let cmd = 'git push';
             if (!((remote === null || remote === void 0 ? void 0 : remote.length) || (src === null || src === void 0 ? void 0 : src.length))) {
                 yield exec.exec(cmd);
