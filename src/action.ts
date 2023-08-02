@@ -8,6 +8,9 @@ import {Context} from '@actions/github/lib/context';
 import {GitHub} from '@actions/github/lib/utils';
 
 import {CommandParser, CommandExecutor} from './command';
+import {GitClient} from './git-client';
+import {GithubClient} from './github-client';
+import {XLIFFClient} from './xliff-client';
 
 export type ActionParameters = {
     githubToken: string;
@@ -15,11 +18,6 @@ export type ActionParameters = {
 };
 
 class Action {
-    private allowedAssociations: Set<string>;
-    private parameters: ActionParameters;
-    private octokit: InstanceType<typeof GitHub>;
-    private context: Context;
-
     private static configuration = `action intended to be configured to run on triggers:
 issue_comment(types:[created, edited])
 pull_request(types:[opened])`;
@@ -31,23 +29,57 @@ pull_request(types:[opened])`;
     private static allowedPermissions = new Set(['admin', 'write']);
     private static defaultAssociationsString = '["OWNER"]';
 
+    private parameters: ActionParameters;
+    private octokit: InstanceType<typeof GitHub>;
+    private context: Context;
+    private allowedAssociations: Set<string>;
+
     private commandsExecutor: CommandExecutor<unknown>;
     private commandsParser: CommandParser;
+
+    private gitClient: GitClient;
+    private githubClient: GithubClient;
+    private xliffClient: XLIFFClient;
 
     constructor() {
         this.parameters = this.parseActionParameters();
 
         this.octokit = github.getOctokit(this.parameters.githubToken);
         this.context = github.context;
+
         this.allowedAssociations = new Set(this.parameters.associations);
 
+        this.gitClient = new GitClient();
+        this.githubClient = new GithubClient(this.parameters.githubToken);
+        this.xliffClient = new XLIFFClient();
+
         this.commandsExecutor = new CommandExecutor();
-        this.commandsExecutor.addHandler('extract', async (...parameters) => {
-            core.debug(`extracting parameters: ${parameters}`);
-        });
-        this.commandsExecutor.addHandler('compose', async (...parameters) => {
-            core.debug(`composing parameters: ${parameters}`);
-        });
+
+        this.commandsExecutor.addHandler(
+            'extract',
+            async (
+                input: string,
+                output: string,
+                sll?: string,
+                tll?: string
+            ) => {
+                await this.xliffClient.extract(
+                    input,
+                    output,
+                    sll ?? '',
+                    tll ?? ''
+                );
+
+                await this.gitClient.add('.');
+                await this.gitClient.commit(
+                    'markdown-translation: extract xliff and skeleton'
+                );
+                await this.gitClient.push();
+
+                // run: yfm xliff extract input output
+                //
+            }
+        );
 
         this.commandsParser = new CommandParser();
     }
@@ -134,7 +166,6 @@ pull_request(types:[opened])`;
         this.assertPermissions();
 
         const commands = await this.commandsParser.parse(comment.body);
-
         const results = await this.commandsExecutor.execute(commands);
 
         for (const result of results) {
