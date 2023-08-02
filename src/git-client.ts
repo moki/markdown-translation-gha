@@ -40,7 +40,7 @@ class GitClient {
             await this.configure();
         }
 
-        await exec.exec(`git commit -m ${message}`);
+        await exec.exec(`git commit -m "${message}"`);
     }
 
     async push(remote?: string, src?: string): Promise<void> {
