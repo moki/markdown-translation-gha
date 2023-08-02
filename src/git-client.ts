@@ -1,14 +1,41 @@
 import * as exec from '@actions/exec';
+import * as core from '@actions/core';
+import {ExecOptions} from '@actions/exec';
 
 class GitClient {
     private username: string;
     private email: string;
     private configured: boolean;
+    private stderr: string;
+    private stdout: string;
+    private options: ExecOptions;
 
     constructor(username?: string, email?: string) {
         this.username = username ?? 'moki';
         this.email = email ?? 'morozov.kirill.moki@gmail.com';
         this.configured = false;
+
+        this.stderr = '';
+        this.stdout = '';
+
+        this.options = {
+            listeners: {
+                stderr: this.handleErr.bind(this),
+                stdout: this.handleOut.bind(this),
+            },
+        };
+    }
+
+    private handleErr(this: GitClient, data: Buffer): void {
+        this.stderr += data.toString();
+    }
+
+    private handleOut(this: GitClient, data: Buffer): void {
+        this.stdout += data.toString();
+    }
+
+    private resetStreams(this: GitClient): void {
+        this.stderr = this.stdout = '';
     }
 
     private async configure(): Promise<void> {
@@ -29,6 +56,8 @@ class GitClient {
             await this.configure();
         }
 
+        this.resetStreams();
+
         await exec.exec(`git add ${pattern}`);
     }
 
@@ -40,13 +69,31 @@ class GitClient {
             await this.configure();
         }
 
-        await exec.exec(`git commit -m "${message}"`);
+        this.resetStreams();
+
+        try {
+            await exec.exec(`git commit -m "${message}"`);
+        } catch (err: unknown) {
+            if (this.isEmptyCommit()) {
+                core.debug('no changes since last commit');
+            } else {
+                throw err;
+            }
+        }
+    }
+
+    private isEmptyCommit(): boolean {
+        const emptyErr = 'nothing to commit, working tree clean';
+
+        return this.stdout.includes(emptyErr) || this.stderr.includes(emptyErr);
     }
 
     async push(remote?: string, src?: string): Promise<void> {
         if (!this.configured) {
             await this.configure();
         }
+
+        this.resetStreams();
 
         let cmd = 'git push';
         if (!(remote?.length || src?.length)) {
