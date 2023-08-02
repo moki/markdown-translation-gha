@@ -7,7 +7,7 @@ import {usage} from './constants';
 import {Context} from '@actions/github/lib/context';
 import {GitHub} from '@actions/github/lib/utils';
 
-import {CommandParser, CommandExecutor} from './command';
+import {Command, CommandParser, CommandExecutor} from './command';
 import {GitClient} from './git-client';
 import {GithubClient} from './github-client';
 import {XLIFFClient} from './xliff-client';
@@ -58,26 +58,19 @@ pull_request(types:[opened])`;
         this.commandsExecutor.addHandler(
             'extract',
             async (
+                pr: string,
                 input: string,
                 output: string,
-                sll?: string,
-                tll?: string
+                sll: string,
+                tll: string
             ) => {
-                await this.xliffClient.extract(
-                    input,
-                    output,
-                    sll ?? '',
-                    tll ?? ''
-                );
-
+                await this.githubClient.checkoutPR(pr);
+                await this.xliffClient.extract(input, output, sll, tll);
                 await this.gitClient.add('.');
                 await this.gitClient.commit(
                     'markdown-translation: extract xliff and skeleton'
                 );
                 await this.gitClient.push();
-
-                // run: yfm xliff extract input output
-                //
             }
         );
 
@@ -165,8 +158,18 @@ pull_request(types:[opened])`;
 
         this.assertPermissions();
 
+        const addPRNumberParameter = (command: Command): Command => {
+            command.parameters = [
+                issue.number.toString(),
+                ...command.parameters,
+            ];
+            return command;
+        };
+
         const commands = await this.commandsParser.parse(comment.body);
-        const results = await this.commandsExecutor.execute(commands);
+        const results = await this.commandsExecutor.execute(
+            commands.map(addPRNumberParameter)
+        );
 
         for (const result of results) {
             const printable = JSON.stringify(result, null, 4);
