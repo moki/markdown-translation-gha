@@ -7,18 +7,18 @@ const parametersSchema = z.array(z.string());
 export type CommandName = z.infer<typeof commandsSchema>;
 export type CommandParameters = z.infer<typeof parametersSchema>;
 
-class Command {
+class Command<P extends {}> {
     name: CommandName;
-    parameters: CommandParameters;
+    parameters: P;
 
-    constructor(name: CommandName, parameters?: string[]) {
+    constructor(name: CommandName, parameters: P = {} as P) {
         this.name = name;
-        this.parameters = parameters ?? [];
+        this.parameters = parameters;
     }
 }
 
 class CommandParser {
-    async parse(input: string): Promise<Command[]> {
+    async parse(input: string): Promise<Command<{}>[]> {
         const lines = input.split('\n').filter(Boolean);
         const parsed = [];
 
@@ -34,7 +34,7 @@ class CommandParser {
         return parsed;
     }
 
-    private parseCommand(line: string): Command {
+    private parseCommand(line: string): Command<{[key: string]: string}> {
         const tokens = line.split(' ').filter(Boolean);
         if (tokens.length < 4) {
             throw new Error('invalid command string');
@@ -43,7 +43,11 @@ class CommandParser {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const keyword = cinameSchema.parse(tokens[0]);
         const cmd = commandsSchema.parse(tokens[1]);
-        const parameters = parametersSchema.parse(tokens.slice(2));
+
+        const parameters = {
+            input: tokens[2],
+            output: tokens[3],
+        };
 
         const command = new Command(cmd, parameters);
 
@@ -51,22 +55,20 @@ class CommandParser {
     }
 }
 
-export type CommandHandler<T> = (
-    ...parameters: CommandParameters
-) => Promise<T>;
+export type CommandHandler<R, I> = (parameters: I) => Promise<R>;
 
-class CommandExecutor<T> {
-    handlers: Map<CommandName, CommandHandler<T>>;
+class CommandExecutor<R, I extends {}> {
+    handlers: Map<CommandName, CommandHandler<R, I>>;
 
     constructor() {
-        this.handlers = new Map<CommandName, CommandHandler<T>>();
+        this.handlers = new Map<CommandName, CommandHandler<R, I>>();
     }
 
-    addHandler(command: CommandName, handler: CommandHandler<T>): void {
+    addHandler(command: CommandName, handler: CommandHandler<R, I>): void {
         this.handlers.set(command, handler);
     }
 
-    async execute(commands: Command[]): Promise<unknown[]> {
+    async execute(commands: Command<I>[]): Promise<unknown[]> {
         const outputs: unknown[] = [];
 
         for (const command of commands) {
@@ -75,7 +77,7 @@ class CommandExecutor<T> {
                 continue;
             }
 
-            outputs.push(handler(...command.parameters));
+            outputs.push(handler(command.parameters));
         }
 
         return Promise.all(outputs);
