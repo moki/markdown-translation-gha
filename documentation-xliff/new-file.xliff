@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="documentation/new-file.md" source-language="ru-RU" target-language="en-US" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="documentation-xliff/new-file.skl.md"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="1">
+        <source>before gfm table</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source>Header 1</source>
+      </trans-unit>
+      <trans-unit id="3">
+        <source>Header 2</source>
+      </trans-unit>
+      <trans-unit id="4">
+        <source>link text</source>
+      </trans-unit>
+      <trans-unit id="5">
+        <source>bold text</source>
+      </trans-unit>
+      <trans-unit id="6">
+        <source>image text</source>
+      </trans-unit>
+      <trans-unit id="7">
+        <source>hint</source>
+      </trans-unit>
+      <trans-unit id="8">
+        <source>italics</source>
+      </trans-unit>
+      <trans-unit id="9">
+        <source>after gfm table</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

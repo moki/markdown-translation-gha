@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="documentation/README.md" source-language="ru-RU" target-language="en-US" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="documentation-xliff/README.skl.md"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="1">
+        <source>🔍 📝 🤖 markdown-translation github action</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source>translate your markdown documentation using</source>
+      </trans-unit>
+      <trans-unit id="3">
+        <source>markdown-translation</source>
+      </trans-unit>
+      <trans-unit id="4">
+        <source>library.</source>
+      </trans-unit>
+      <trans-unit id="5">
+        <source>action controlled by issuing commands via comments inside pull requests.</source>
+      </trans-unit>
+      <trans-unit id="6">
+        <source>allows you to: extract and compose xliff, read more about usage under</source>
+      </trans-unit>
+      <trans-unit id="7">
+        <source>usage section</source>
+      </trans-unit>
+      <trans-unit id="8">
+        <source>read more about it under the Usage section.</source>
+      </trans-unit>
+      <trans-unit id="9">
+        <source>🔧 installation</source>
+      </trans-unit>
+      <trans-unit id="10">
+        <source>🚧 Work In Progress 🚧</source>
+      </trans-unit>
+      <trans-unit id="11">
+        <source>⚙️ configuration</source>
+      </trans-unit>
+      <trans-unit id="12">
+        <source>action should be configured appropriately</source>
+      </trans-unit>
+      <trans-unit id="13">
+        <source>🕑 triggers</source>
+      </trans-unit>
+      <trans-unit id="14">
+        <source>action intended to be ran on opened pull requests and on new comments.</source>
+      </trans-unit>
+      <trans-unit id="15">
+        <source>🔒 permissions</source>
+      </trans-unit>
+      <trans-unit id="16">
+        <source>action expects you to provide appropriate permission</source>
+      </trans-unit>
+      <trans-unit id="17">
+        <source>⌨️ input</source>
+      </trans-unit>
+      <trans-unit id="18">
+        <source>action expects be ran with appropriate input</source>
+      </trans-unit>
+      <trans-unit id="19">
+        <source>allowed-associations: stringified array of author associations to filter out actors that are not allowed to perform actions.</source>
+      </trans-unit>
+      <trans-unit id="20">
+        <source>gh docs: comment author association</source>
+      </trans-unit>
+      <trans-unit id="21">
+        <source>github-token: github token on whoose behalf to perform actions.</source>
+      </trans-unit>
+      <trans-unit id="22">
+        <source>🧑‍💻 usage</source>
+      </trans-unit>
+      <trans-unit id="23">
+        <source>commands are issued inside the pull request,</source>
+      </trans-unit>
+      <trans-unit id="24">
+        <source>the action will provide you with instructions.</source>
+      </trans-unit>
+      <trans-unit id="25">
+        <source>commands start with mandatory prefix:</source>
+      </trans-unit>
+      <trans-unit id="26">
+        <source>markdown-translation</source>
+      </trans-unit>
+      <trans-unit id="27">
+        <source>,</source>
+      </trans-unit>
+      <trans-unit id="28">
+        <source>then follows command name and parameters.</source>
+      </trans-unit>
+      <trans-unit id="29">
+        <source>commands don&apos;t have to be the only text inside the comment,</source>
+      </trans-unit>
+      <trans-unit id="30">
+        <source>but they should start with the new line.</source>
+      </trans-unit>
+      <trans-unit id="31">
+        <source>tokens inside command string should be separated by spaces.</source>
+      </trans-unit>
+      <trans-unit id="32">
+        <source>💡 requirements</source>
+      </trans-unit>
+      <trans-unit id="33">
+        <source>commands start from the new line</source>
+      </trans-unit>
+      <trans-unit id="34">
+        <source>commands have</source>
+      </trans-unit>
+      <trans-unit id="35">
+        <source>markdown-translation</source>
+      </trans-unit>
+      <trans-unit id="36">
+        <source>prefix</source>
+      </trans-unit>
+      <trans-unit id="37">
+        <source>tokens inside command string are separated with spaces</source>
+      </trans-unit>
+      <trans-unit id="38">
+        <source>comment author should have appropriate repository permissions</source>
+      </trans-unit>
+      <trans-unit id="39">
+        <source>comment author should have appropriate associations</source>
+      </trans-unit>
+      <trans-unit id="40">
+        <source>🤖 commands</source>
+      </trans-unit>
+      <trans-unit id="41">
+        <source>extract</source>
+      </trans-unit>
+      <trans-unit id="42">
+        <source>compose</source>
+      </trans-unit>
+      <trans-unit id="43">
+        <source>🔍 extract</source>
+      </trans-unit>
+      <trans-unit id="44">
+        <source>command extracts xliff and skeleton from markdown files at</source>
+      </trans-unit>
+      <trans-unit id="45">
+        <source>input_folder</source>
+      </trans-unit>
+      <trans-unit id="46">
+        <source>path</source>
+      </trans-unit>
+      <trans-unit id="47">
+        <source>and stores them at the</source>
+      </trans-unit>
+      <trans-unit id="48">
+        <source>output_folder</source>
+      </trans-unit>
+      <trans-unit id="49">
+        <source>path.</source>
+      </trans-unit>
+      <trans-unit id="50">
+        <source>🎛️ parameters</source>
+      </trans-unit>
+      <trans-unit id="51">
+        <source>paths are relative to the repository root</source>
+      </trans-unit>
+      <trans-unit id="52">
+        <source>input_folder(</source>
+      </trans-unit>
+      <trans-unit id="53">
+        <source>required</source>
+      </trans-unit>
+      <trans-unit id="54">
+        <source>): path with markdown files</source>
+      </trans-unit>
+      <trans-unit id="55">
+        <source>output_folder(</source>
+      </trans-unit>
+      <trans-unit id="56">
+        <source>required</source>
+      </trans-unit>
+      <trans-unit id="57">
+        <source>): path to store extracted xliff and skeleton files</source>
+      </trans-unit>
+      <trans-unit id="58">
+        <source>sll(optional): source language locale (default: ru-RU)</source>
+      </trans-unit>
+      <trans-unit id="59">
+        <source>rll(optional): target language locale (default: en-US)</source>
+      </trans-unit>
+      <trans-unit id="60">
+        <source>🚀 example</source>
+      </trans-unit>
+      <trans-unit id="61">
+        <source>📝 compose</source>
+      </trans-unit>
+      <trans-unit id="62">
+        <source>command composes xliff and skeleton files from</source>
+      </trans-unit>
+      <trans-unit id="63">
+        <source>input_folder</source>
+      </trans-unit>
+      <trans-unit id="64">
+        <source>into markdown files</source>
+      </trans-unit>
+      <trans-unit id="65">
+        <source>and stores them at the</source>
+      </trans-unit>
+      <trans-unit id="66">
+        <source>output_folder</source>
+      </trans-unit>
+      <trans-unit id="67">
+        <source>path.</source>
+      </trans-unit>
+      <trans-unit id="68">
+        <source>🎛️ parameters</source>
+      </trans-unit>
+      <trans-unit id="69">
+        <source>paths are relative to the repository root</source>
+      </trans-unit>
+      <trans-unit id="70">
+        <source>input_folder(</source>
+      </trans-unit>
+      <trans-unit id="71">
+        <source>required</source>
+      </trans-unit>
+      <trans-unit id="72">
+        <source>): path with extracted xliff and skeleton files</source>
+      </trans-unit>
+      <trans-unit id="73">
+        <source>output_folder(</source>
+      </trans-unit>
+      <trans-unit id="74">
+        <source>required</source>
+      </trans-unit>
+      <trans-unit id="75">
+        <source>): path to store composed markdown</source>
+      </trans-unit>
+      <trans-unit id="76">
+        <source>🚀 example</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
