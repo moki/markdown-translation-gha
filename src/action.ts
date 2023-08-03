@@ -17,6 +17,8 @@ export type ActionParameters = {
     associations: string[];
 };
 
+export type HandlerParameters = Record<string, string>;
+
 class Action {
     private static configuration = `action intended to be configured to run on triggers:
 issue_comment(types:[created, edited])
@@ -34,8 +36,8 @@ pull_request(types:[opened])`;
     private context: Context;
     private allowedAssociations: Set<string>;
 
-    private commandsExecutor: CommandExecutor<unknown>;
     private commandsParser: CommandParser;
+    private commandsExecutor: CommandExecutor<unknown, HandlerParameters>;
 
     private gitClient: GitClient;
     private githubClient: GithubClient;
@@ -54,27 +56,24 @@ pull_request(types:[opened])`;
         this.xliffClient = new XLIFFClient();
 
         this.commandsExecutor = new CommandExecutor();
-
         this.commandsExecutor.addHandler(
             'extract',
-            async (
-                pr: string,
-                input: string,
-                output: string,
-                sll: string,
-                tll: string
-            ) => {
-                await this.githubClient.checkoutPR(pr);
-                await this.xliffClient.extract(input, output, sll, tll);
-                await this.gitClient.add('.');
-                await this.gitClient.commit(
-                    'markdown-translation: extract xliff and skeleton'
-                );
-                await this.gitClient.push();
-            }
+            this.extractHandler.bind(this)
         );
 
         this.commandsParser = new CommandParser();
+    }
+
+    private async extractHandler(parameters: HandlerParameters): Promise<void> {
+        const {pr, input, output, sll, tll} = parameters;
+
+        await this.githubClient.checkoutPR(pr);
+        await this.xliffClient.extract(input, output, sll, tll);
+        await this.gitClient.add('.');
+        await this.gitClient.commit(
+            'markdown-translation: extract xliff and skeleton'
+        );
+        await this.gitClient.push();
     }
 
     private parseActionParameters(): ActionParameters {
@@ -158,23 +157,27 @@ pull_request(types:[opened])`;
 
         this.assertPermissions();
 
-        const addPRNumberParameter = (command: Command): Command => {
-            command.parameters = [
-                issue.number.toString(),
-                ...command.parameters,
-            ];
-            return command;
-        };
-
         const commands = await this.commandsParser.parse(comment.body);
         const results = await this.commandsExecutor.execute(
-            commands.map(addPRNumberParameter)
+            commands.map(this.addPR(issue.number.toString()))
         );
 
         for (const result of results) {
             const printable = JSON.stringify(result, null, 4);
             core.debug(printable);
         }
+    }
+
+    private addPR(pr: string) {
+        return (
+            command: Command<HandlerParameters>
+        ): Command<HandlerParameters> => {
+            command.parameters = {
+                pr,
+                ...command.parameters,
+            };
+            return command;
+        };
     }
 
     async assertPermissions(): Promise<void> {

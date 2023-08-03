@@ -58,19 +58,18 @@ class Action {
         this.githubClient = new github_client_1.GithubClient();
         this.xliffClient = new xliff_client_1.XLIFFClient();
         this.commandsExecutor = new command_1.CommandExecutor();
-        this.commandsExecutor.addHandler('extract', (pr
-        // input: string,
-        // output: string,
-        // sll: string,
-        // tll: string
-        ) => __awaiter(this, void 0, void 0, function* () {
+        this.commandsExecutor.addHandler('extract', this.extractHandler.bind(this));
+        this.commandsParser = new command_1.CommandParser();
+    }
+    extractHandler(parameters) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { pr, input, output, sll, tll } = parameters;
             yield this.githubClient.checkoutPR(pr);
-            // await this.xliffClient.extract(input, output, sll, tll);
+            yield this.xliffClient.extract(input, output, sll, tll);
             yield this.gitClient.add('.');
             yield this.gitClient.commit('markdown-translation: extract xliff and skeleton');
             yield this.gitClient.push();
-        }));
-        this.commandsParser = new command_1.CommandParser();
+        });
     }
     parseActionParameters() {
         const githubToken = core.getInput('github-token', { required: true });
@@ -128,20 +127,19 @@ class Action {
                 return;
             }
             this.assertPermissions();
-            const addPRNumberParameter = (command) => {
-                command.parameters = [
-                    issue.number.toString(),
-                    ...command.parameters,
-                ];
-                return command;
-            };
             const commands = yield this.commandsParser.parse(comment.body);
-            const results = yield this.commandsExecutor.execute(commands.map(addPRNumberParameter));
+            const results = yield this.commandsExecutor.execute(commands.map(this.addPR(issue.number.toString())));
             for (const result of results) {
                 const printable = JSON.stringify(result, null, 4);
                 core.debug(printable);
             }
         });
+    }
+    addPR(pr) {
+        return (command) => {
+            command.parameters = Object.assign({ pr }, command.parameters);
+            return command;
+        };
     }
     assertPermissions() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -209,9 +207,9 @@ const cinameSchema = zod_1.z.literal('markdown-translation');
 const commandsSchema = zod_1.z.union([zod_1.z.literal('extract'), zod_1.z.literal('compose')]);
 const parametersSchema = zod_1.z.array(zod_1.z.string());
 class Command {
-    constructor(name, parameters) {
+    constructor(name, parameters = {}) {
         this.name = name;
-        this.parameters = parameters !== null && parameters !== void 0 ? parameters : [];
+        this.parameters = parameters;
     }
 }
 exports.Command = Command;
@@ -240,7 +238,10 @@ class CommandParser {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const keyword = cinameSchema.parse(tokens[0]);
         const cmd = commandsSchema.parse(tokens[1]);
-        const parameters = parametersSchema.parse(tokens.slice(2));
+        const parameters = {
+            input: tokens[2],
+            output: tokens[3],
+        };
         const command = new Command(cmd, parameters);
         return command;
     }
@@ -261,7 +262,7 @@ class CommandExecutor {
                 if (!handler) {
                     continue;
                 }
-                outputs.push(handler(...command.parameters));
+                outputs.push(handler(command.parameters));
             }
             return Promise.all(outputs);
         });
@@ -399,14 +400,6 @@ class GitClient {
             listeners: {
                 stderr: this.handleErr.bind(this),
                 stdout: this.handleOut.bind(this),
-                /*
-                stderr: (data: Buffer): void => {
-                    this.stderr += data.toString();
-                },
-                stdout: (data: Buffer): void => {
-                    this.stdout += data.toString();
-                },
-                */
             },
         };
     }
