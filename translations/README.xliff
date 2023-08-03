@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="documentation/README.md" source-language="ru-RU" target-language="en-US" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="xliff/README.skl.md"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="1">
+        <source>🔍 📝 🤖 markdown-translation github action</source>
+        <target>🔍 📝 🤖 markdown-translation github action</target>
+      </trans-unit>
+      <trans-unit id="2">
+        <source>translate your markdown documentation using</source>
+        <target>переводите маркдаун документацию с помощью</target>
+      </trans-unit>
+      <trans-unit id="3">
+        <source>markdown-translation</source>
+        <target>markdown-translation</target>
+      </trans-unit>
+      <trans-unit id="4">
+        <source>library.</source>
+        <target>библиотеки.</target>
+      </trans-unit>
+      <trans-unit id="5">
+        <source>action controlled by issuing commands via comments inside pull requests.</source>
+        <target>вы можете запускать action командами в комментариях пулл реквеста</target>
+      </trans-unit>
+      <trans-unit id="6">
+        <source>allows you to: extract and compose xliff, read more about usage under</source>
+        <target>доступные команды: extract и compose, читайте подробнее</target>
+      </trans-unit>
+      <trans-unit id="7">
+        <source>usage section</source>
+        <target>в секции инструкция</target>
+      </trans-unit>
+      <trans-unit id="8">
+        <source>read more about it under the Usage section.</source>
+        <target>читайте больше об этом в секции Инструкция</target>
+      </trans-unit>
+      <trans-unit id="9">
+        <source>🔧 installation</source>
+        <target>🔧 установка</target>
+      </trans-unit>
+      <trans-unit id="10">
+        <source>🚧 Work In Progress 🚧</source>
+        <target>🚧 Еще не готово 🚧</target>
+      </trans-unit>
+      <trans-unit id="11">
+        <source>⚙️ configuration</source>
+        <target>⚙️ Настройка</target>
+      </trans-unit>
+      <trans-unit id="12">
+        <source>action should be configured appropriately</source>
+        <target>action должен быть настроен должным образом</target>
+      </trans-unit>
+      <trans-unit id="13">
+        <source>🕑 triggers</source>
+        <target>🕑 триггеры</target>
+      </trans-unit>
+      <trans-unit id="14">
+        <source>action intended to be ran on opened pull requests and on new comments.</source>
+        <target>action предназначен быть настроеным на pull_request и issue_comment триггеры</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
