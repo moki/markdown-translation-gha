@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="documentation/info.md" source-language="ru-RU" target-language="en-US" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="documentation-xliff/info.skl.md"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="1">
+        <source>title</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source>list item</source>
+      </trans-unit>
+      <trans-unit id="3">
+        <source>content inside</source>
+      </trans-unit>
+      <trans-unit id="4">
+        <source>what&apos;s going on</source>
+      </trans-unit>
+      <trans-unit id="5">
+        <source>hey</source>
+      </trans-unit>
+      <trans-unit id="6">
+        <source>title</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
