@@ -59,16 +59,20 @@ class Action {
         this.xliffClient = new xliff_client_1.XLIFFClient();
         this.commandsExecutor = new command_1.CommandExecutor();
         this.commandsExecutor.addHandler('extract', this.extractHandler.bind(this));
+        this.commandsExecutor.addHandler('compose', this.composeHandler.bind(this));
         this.commandsParser = new command_1.CommandParser();
     }
-    extractHandler(parameters) {
+    run() {
         return __awaiter(this, void 0, void 0, function* () {
-            const { pr, input, output, sll, tll } = parameters;
-            yield this.githubClient.checkoutPR(pr);
-            yield this.xliffClient.extract(input, output, sll, tll);
-            yield this.gitClient.add('.');
-            yield this.gitClient.commit('markdown-translation: extract xliff and skeleton');
-            yield this.gitClient.push();
+            const { eventName } = this.context;
+            core.debug(`triggered ${eventName}`);
+            if (eventName === Action.pull_request_event) {
+                return this.handlePullRequest();
+            }
+            else if (eventName === Action.issue_comment_event) {
+                return this.handleComment();
+            }
+            throw new Error(`${eventName} not implemented\n${Action.configuration}`);
         });
     }
     parseActionParameters() {
@@ -96,17 +100,24 @@ class Action {
         };
         return zod_1.z.string().transform(parser).parse(associations);
     }
-    run() {
+    extractHandler(parameters) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { eventName } = this.context;
-            core.debug(`triggered ${eventName}`);
-            if (eventName === Action.pull_request_event) {
-                return this.handlePullRequest();
-            }
-            else if (eventName === Action.issue_comment_event) {
-                return this.handleComment();
-            }
-            throw new Error(`${eventName} not implemented\n${Action.configuration}`);
+            const { pr, input, output, sll, tll } = parameters;
+            yield this.githubClient.checkoutPR(pr);
+            yield this.xliffClient.extract(input, output, sll, tll);
+            yield this.gitClient.add('.');
+            yield this.gitClient.commit('markdown-translation: extract xliff and skeleton');
+            yield this.gitClient.push();
+        });
+    }
+    composeHandler(parameters) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { pr, input, output } = parameters;
+            yield this.githubClient.checkoutPR(pr);
+            yield this.xliffClient.compose(input, output);
+            yield this.gitClient.add('.');
+            yield this.gitClient.commit('markdown-translation: compose xliff and skeleton into markdown');
+            yield this.gitClient.push();
         });
     }
     handlePullRequest() {
@@ -649,6 +660,18 @@ class XLIFFClient {
                 tll = targetLanguageLocale;
             }
             const cmd = `yfm xliff extract --input ${input} --output ${output} --sll ${sll} --tll ${tll}`;
+            yield exec.exec(cmd);
+        });
+    }
+    compose(input, output) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!(input.length && output.length)) {
+                throw new Error('specify input and output');
+            }
+            if (!this.configured) {
+                yield this.configure();
+            }
+            const cmd = `yfm xliff compose --input ${input} --output ${output}`;
             yield exec.exec(cmd);
         });
     }

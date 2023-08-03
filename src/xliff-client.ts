@@ -40,6 +40,20 @@ class XLIFFClient {
 
         await exec.exec(cmd);
     }
+
+    async compose(input: string, output: string): Promise<void> {
+        if (!(input.length && output.length)) {
+            throw new Error('specify input and output');
+        }
+
+        if (!this.configured) {
+            await this.configure();
+        }
+
+        const cmd = `yfm xliff compose --input ${input} --output ${output}`;
+
+        await exec.exec(cmd);
+    }
 }
 
 export {XLIFFClient};
