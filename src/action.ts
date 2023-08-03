@@ -64,16 +64,20 @@ pull_request(types:[opened])`;
         this.commandsParser = new CommandParser();
     }
 
-    private async extractHandler(parameters: HandlerParameters): Promise<void> {
-        const {pr, input, output, sll, tll} = parameters;
+    async run(): Promise<void> {
+        const {eventName} = this.context;
 
-        await this.githubClient.checkoutPR(pr);
-        await this.xliffClient.extract(input, output, sll, tll);
-        await this.gitClient.add('.');
-        await this.gitClient.commit(
-            'markdown-translation: extract xliff and skeleton'
+        core.debug(`triggered ${eventName}`);
+
+        if (eventName === Action.pull_request_event) {
+            return this.handlePullRequest();
+        } else if (eventName === Action.issue_comment_event) {
+            return this.handleComment();
+        }
+
+        throw new Error(
+            `${eventName} not implemented\n${Action.configuration}`
         );
-        await this.gitClient.push();
     }
 
     private parseActionParameters(): ActionParameters {
@@ -108,20 +112,16 @@ pull_request(types:[opened])`;
         return z.string().transform(parser).parse(associations);
     }
 
-    async run(): Promise<void> {
-        const {eventName} = this.context;
+    private async extractHandler(parameters: HandlerParameters): Promise<void> {
+        const {pr, input, output, sll, tll} = parameters;
 
-        core.debug(`triggered ${eventName}`);
-
-        if (eventName === Action.pull_request_event) {
-            return this.handlePullRequest();
-        } else if (eventName === Action.issue_comment_event) {
-            return this.handleComment();
-        }
-
-        throw new Error(
-            `${eventName} not implemented\n${Action.configuration}`
+        await this.githubClient.checkoutPR(pr);
+        await this.xliffClient.extract(input, output, sll, tll);
+        await this.gitClient.add('.');
+        await this.gitClient.commit(
+            'markdown-translation: extract xliff and skeleton'
         );
+        await this.gitClient.push();
     }
 
     private async handlePullRequest(): Promise<void> {
