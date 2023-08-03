@@ -60,6 +60,10 @@ pull_request(types:[opened])`;
             'extract',
             this.extractHandler.bind(this)
         );
+        this.commandsExecutor.addHandler(
+            'compose',
+            this.composeHandler.bind(this)
+        );
 
         this.commandsParser = new CommandParser();
     }
@@ -120,6 +124,18 @@ pull_request(types:[opened])`;
         await this.gitClient.add('.');
         await this.gitClient.commit(
             'markdown-translation: extract xliff and skeleton'
+        );
+        await this.gitClient.push();
+    }
+
+    private async composeHandler(parameters: HandlerParameters): Promise<void> {
+        const {pr, input, output} = parameters;
+
+        await this.githubClient.checkoutPR(pr);
+        await this.xliffClient.compose(input, output);
+        await this.gitClient.add('.');
+        await this.gitClient.commit(
+            'markdown-translation: compose xliff and skeleton into markdown'
         );
         await this.gitClient.push();
     }
