@@ -6,8 +6,6 @@ action controlled by issuing commands via comments inside pull requests.
 
 allows you to: extract and compose xliff, read more about usage under [usage section](#-usage)
 
-read more about it under the Usage section.
-
 ##### 🔧 installation
 
 🚧 Work In Progress 🚧
@@ -117,5 +115,5 @@ paths are relative to the repository root
 ##### 🚀 example
 
 ```
-markdown-translation extract documentation-xliff documentation-translated
+markdown-translation compose documentation-xliff documentation-translated
 ```
