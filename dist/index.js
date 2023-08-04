@@ -347,7 +347,7 @@ paths are relative to the repository root
 ##### 🚀 example
 
 \`\`\`
-markdown-translation extract documentation-xliff documentation-translated
+markdown-translation compose documentation-xliff documentation-translated
 \`\`\``;
 exports.usage = usage;
 exports["default"] = { usage };
