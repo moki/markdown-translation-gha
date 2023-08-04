@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="documentation/README.md" source-language="ru-RU" target-language="en-US" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="xliff/README.skl.md"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="1">
+        <source>🔍 📝 🤖 markdown-translation github action</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source>translate your markdown documentation using</source>
+      </trans-unit>
+      <trans-unit id="3">
+        <source>markdown-translation</source>
+      </trans-unit>
+      <trans-unit id="4">
+        <source>library.</source>
+      </trans-unit>
+      <trans-unit id="5">
+        <source>action controlled by issuing commands via comments inside pull requests.</source>
+      </trans-unit>
+      <trans-unit id="6">
+        <source>allows you to: extract and compose xliff, read more about usage under</source>
+      </trans-unit>
+      <trans-unit id="7">
+        <source>usage section</source>
+      </trans-unit>
+      <trans-unit id="8">
+        <source>read more about it under the Usage section.</source>
+      </trans-unit>
+      <trans-unit id="9">
+        <source>🔧 installation</source>
+      </trans-unit>
+      <trans-unit id="10">
+        <source>🚧 Work In Progress 🚧</source>
+      </trans-unit>
+      <trans-unit id="11">
+        <source>⚙️ configuration</source>
+      </trans-unit>
+      <trans-unit id="12">
+        <source>action should be configured appropriately</source>
+      </trans-unit>
+      <trans-unit id="13">
+        <source>🕑 triggers</source>
+      </trans-unit>
+      <trans-unit id="14">
+        <source>action intended to be ran on opened pull requests and on new comments.</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

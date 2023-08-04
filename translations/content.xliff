@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="documentation/content.md" source-language="ru-RU" target-language="en-US" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="xliff/content.skl.md"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="1">
+        <source>story about something.</source>
+        <target>какая-то история</target>
+      </trans-unit>
+      <trans-unit id="2">
+        <source>also checkout</source>
+        <target>зацени</target>
+      </trans-unit>
+      <trans-unit id="3">
+        <source>file.md</source>
+        <target>file.md</target>
+      </trans-unit>
+      <trans-unit id="4">
+        <source>such file, much wow</source>
+        <target>такой файл, хайп xd</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
